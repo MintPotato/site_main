@@ -1,15 +1,18 @@
 version: '3.8'
 
 services:
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - web
-    restart: always
+  # nginx:
+    
+  #   image: nginx:alpine
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #   depends_on:
+  #     - web
+  #   restart: always
+  #   networks:
+  #     - my-network
 
   web:
     build:
@@ -20,8 +23,11 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:24351@db:5432/news_bd?schema=public
     depends_on:
-      - db
+      db:
+        condition: service_started
     restart: always
+    networks:
+      - my-network
 
   db:
     image: postgres:latest
@@ -30,10 +36,15 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 24351
       POSTGRES_DB: news_bd
-    ports:
-      - "5432:5432"
+    # ports:
+    #   - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - my-network
 
 volumes:
   postgres_data:
+
+networks:
+  my-network:
